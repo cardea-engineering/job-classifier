@@ -7,15 +7,6 @@ job_category_model = get_serialized('job_type_category_name_model.pkl')
 job_type_model = get_serialized('job_type_name_model.pkl')
 tfidfVectorizer = get_serialized('tfIdfVectorizer.pkl')
 
-job_categories = ['Business Operations', 'Data & Analytics',
-                  'Finance, Legal & Compliance', 'Product & Design',
-                  'Software Engineering']
-
-job_types = ['Back-End Software Engineering', 'Business Development',
-             'Business Intelligence & Data Analysis', 'Data Engineering',
-             'DevOps & Infrastructure', 'Front-End Software Engineering',
-             'Full-Stack Software Engineering', 'Operations & General Business',
-             'Product Manager', 'Sales']
 
 app = Flask(__name__)
 

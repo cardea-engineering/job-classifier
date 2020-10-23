@@ -12,16 +12,11 @@ Python 3.8.5
 pip install --user -r requirements.txt
 ```
 
-```python
-import nltk
-nltk.download('punkt')
-nltk.download('wordnet')
-```
-
 ## Run Server
 ```shell
 python server.py
 ```
 
-In development mode, we can post to the API `localhost:5000/predict` by setting two fields: job title `title` and job description `desc`.
+In development mode, we can sent POST request to the API `localhost:5000/predict` by setting two fields: job title `title` and job description `desc`.
 ![](static/API_demo.jpg)
+The screenshot is made by Postman as an example.
