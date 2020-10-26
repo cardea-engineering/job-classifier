@@ -16,6 +16,7 @@ def get_model(file_name):
 
 job_category_model = get_model('job_type_category_name_model.pkl')
 job_type_model = get_model('job_type_name_model.pkl')
+job_exp_model = get_model('job_exp_name_model.pkl')
 tfidfVectorizer = get_model('tfIdfVectorizer.pkl')
 
 job_categories = ['Business Operations', 'Data & Analytics',
@@ -27,6 +28,9 @@ job_types = ['Back-End Software Engineering', 'Business Development',
              'DevOps & Infrastructure', 'Front-End Software Engineering',
              'Full-Stack Software Engineering', 'Operations & General Business',
              'Product Manager', 'Sales']
+
+
+job_experiences = ['Entry Level (New Grad)', 'Intern', 'Junior (1-2 years)']
 
 lemmatizer = WordNetLemmatizer()
 
@@ -57,7 +61,7 @@ def wrap_result(names, probs):
 def predict(job_title, job_desc):
     text_input = parse_raw_html(job_title + job_desc)
     Xts = tfidfVectorizer.transform(np.array([text_input])).toarray()
-    
+
     type_matched = get_match(job_title, job_desc)
     if type_matched:
         result_type = {type_matched: 1}
@@ -67,8 +71,11 @@ def predict(job_title, job_desc):
 
     prob_category = job_category_model.predict_proba(Xts).flatten()
     result_category = wrap_result(job_categories, prob_category)
+    prob_exp = job_exp_model.predict_proba(Xts).flatten()
+    result_exp = wrap_result(job_experiences, prob_exp)
 
     return {
         'job_category': result_category,
-        'job_type': result_type
+        'job_type': result_type,
+        'job_experience': result_exp
     }
