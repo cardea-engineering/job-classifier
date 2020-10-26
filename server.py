@@ -1,6 +1,7 @@
 import numpy as np
 from flask import Flask, request, jsonify
-from utils import *
+from utils.utils import *
+from utils.match_rules import get_match
 
 
 job_category_model = get_serialized('job_type_category_name_model.pkl')
@@ -28,11 +29,15 @@ def results():
 
     Xts = tfidfVectorizer.transform(np.array([text_input])).toarray()
 
-    prob_category = job_category_model.predict_proba(Xts).flatten()
-    prob_type = job_type_model.predict_proba(Xts).flatten()
+    type_matched = get_match(job_title, job_desc)
+    if type_matched:
+        result_type = {type_matched: 1}
+    else:
+        prob_types = job_type_model.predict_proba(Xts).flatten()
+        result_type = wrap_result(job_types, prob_types)
 
+    prob_category = job_category_model.predict_proba(Xts).flatten()
     result_category = wrap_result(job_categories, prob_category)
-    result_type = wrap_result(job_types, prob_type)
 
     return jsonify({
         'job_category': result_category,
