@@ -7,11 +7,29 @@ Back-End Software Engineering:
   title:
     - back-end
     - back end
-# Full-Stack Software Engineering
-# Business Development
-# Business Intelligence & Data Analysis
-# Data Engineering
-# DevOps & Infrastructure
+Full-Stack Software Engineering:
+  title:
+    - full stack
+    - full-stack
+DevOps & Infrastructure:
+  title:
+    - devops
+    - platform
+    - site reliability
+    - infrastructure
+Product Manager:
+  title:
+    - product manage
+Business Development:
+  title:
+    - business develop
+Data Engineering:
+  title:
+    - data engineer
+Business Intelligence & Data Analysis:
+  title:
+    - data analysis
+    - business intelligence
+
 # Operations & General Business
-# Product Manager
 # Sales
