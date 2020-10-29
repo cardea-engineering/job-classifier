@@ -4,7 +4,6 @@ import unicodedata
 import pickle
 import numpy as np
 from bs4 import BeautifulSoup
-from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
 from utils.match_rules import match_job_type_rules
@@ -13,6 +12,8 @@ from utils.match_rules import match_job_type_rules
 def get_model(file_name):
     return pickle.load(open('models/' + file_name, 'rb'))
 
+with open('static/stopwords.txt') as f:
+    STOP_WORDS = [line.strip() for line in f.readlines()]
 
 job_category_model = get_model('job_type_category_name_model.pkl')
 job_type_model = get_model('job_type_name_model.pkl')
@@ -37,11 +38,7 @@ lemmatizer = WordNetLemmatizer()
 
 def tokenize_text(sentence):
     token_words = word_tokenize(sentence)
-    tokens = []
-    for word in token_words:
-        if re.match('[a-zA-Z]{2,}', word) and word not in ENGLISH_STOP_WORDS:
-            tokens.append(lemmatizer.lemmatize(word.lower(), pos='v'))
-    return " ".join(tokens)
+    return " ".join([lemmatizer.lemmatize(word.lower(), pos='v') for word in token_words])
 
 
 def parse_raw_html(raw_html):
