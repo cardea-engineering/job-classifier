@@ -7,7 +7,7 @@ from bs4 import BeautifulSoup
 from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from utils.match_rules import get_manual_match
+from utils.match_rules import match_job_type_rules
 
 
 def get_model(file_name):
@@ -60,13 +60,11 @@ def wrap_result(names, probs):
 
 def predict(job_title, job_desc):
     text_input = parse_raw_html(job_title + job_desc)
-    print(text_input)
     Xts = tfidfVectorizer.transform(np.array([text_input])).toarray()
 
-    type_matched = get_manual_match(job_title, job_desc)
-    print(type_matched)
+    type_matched = match_job_type_rules(job_title, job_desc)
     if type_matched:
-        result_type = {type_matched: 1}
+        result_type = [{type_matched: 1}]
     else:
         prob_types = job_type_model.predict_proba(Xts).flatten()
         result_type = wrap_result(job_types, prob_types)
