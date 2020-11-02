@@ -12,6 +12,10 @@ Python 3.8.5
 pip install --user -r requirements.txt
 ```
 
+```shell
+python setup.py
+```
+
 ## Run Server
 ```shell
 python server.py

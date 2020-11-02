@@ -19,7 +19,7 @@ nltk == 3.5
 numpy == 1.19.2
 
 # job_classifier/utils/utils.py: 6
-scikit_learn == 0.22.2
+scikit_learn == 0.23.2
 
 # job_classifier/utils/match_rules.py: 1
 yoc == 0.0.0
