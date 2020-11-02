@@ -61,7 +61,7 @@ def predict(job_title, job_desc):
 
     type_matched = match_job_type_rules(job_title, job_desc)
     if type_matched:
-        result_type = [{type_matched: 1}]
+        result_type = wrap_result([type_matched], [1])
     else:
         prob_types = job_type_model.predict_proba(Xts).flatten()
         result_type = wrap_result(job_types, prob_types)
