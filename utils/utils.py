@@ -6,11 +6,12 @@ import numpy as np
 from bs4 import BeautifulSoup
 from nltk.tokenize import word_tokenize
 from nltk.stem import WordNetLemmatizer
-from utils.match_rules import match_job_type_rules
+from utils.match_rules import match_job_type_rules, match_job_exp_rules
 
 
 def get_model(file_name):
     return pickle.load(open('models/' + file_name, 'rb'))
+
 
 with open('static/stopwords.txt') as f:
     STOP_WORDS = [line.strip() for line in f.readlines()]
@@ -49,27 +50,40 @@ def parse_raw_html(raw_html):
 
 
 def wrap_result(names, probs):
-    return sorted([
-        {'name': names[i], 'probability': float('%.3f' % p)}
-        for i, p in enumerate(probs)], key=lambda x: -x['probability']
-    )
+    return sorted(
+        filter(
+            lambda x: x['probability'] > 0,
+            [{'name': names[i], 'probability': float(
+                '%.3f' % p)} for i, p in enumerate(probs)]
+        ), key=lambda x: -x['probability'])
+
+
+def get_result_with_manual_rules(X, model, result_types, func_rule, job_title, job_desc=''):
+    # match with manual rules with function (func_tule)
+    _matched = func_rule(job_title, job_desc)
+    if _matched:
+        _result = wrap_result([_matched], [1])
+    else:
+        _probabilities = model.predict_proba(X).flatten()
+        _result = wrap_result(result_types, _probabilities)
+    return _result
 
 
 def predict(job_title, job_desc):
     text_input = parse_raw_html(job_title + job_desc)
-    Xts = tfidfVectorizer.transform(np.array([text_input])).toarray()
+    X = tfidfVectorizer.transform(np.array([text_input])).toarray()
 
-    type_matched = match_job_type_rules(job_title, job_desc)
-    if type_matched:
-        result_type = wrap_result([type_matched], [1])
-    else:
-        prob_types = job_type_model.predict_proba(Xts).flatten()
-        result_type = wrap_result(job_types, prob_types)
+    # job type
+    result_type = get_result_with_manual_rules(
+        X, job_type_model, job_types, match_job_type_rules, job_title)
 
-    prob_category = job_category_model.predict_proba(Xts).flatten()
+    # job experience
+    result_exp = get_result_with_manual_rules(
+        X, job_exp_model, job_experiences, match_job_exp_rules, job_title)
+
+    # job category
+    prob_category = job_category_model.predict_proba(X).flatten()
     result_category = wrap_result(job_categories, prob_category)
-    prob_exp = job_exp_model.predict_proba(Xts).flatten()
-    result_exp = wrap_result(job_experiences, prob_exp)
 
     return {
         'job_category': result_category,
