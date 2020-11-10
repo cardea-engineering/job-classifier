@@ -19,24 +19,29 @@ from utils.match_rules import match_job_type_rules
 import pickle
 
 
-df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(str(row['description']) + row['title']), axis=1)
-df = df.sample(frac=1).reset_index(drop=True)
+# global variables
+RAND_SEED = 42
+TRAIN_FIELD = 'job_type_name'
 
-# prepare data
-def get_X_y(df):
 
+def get_dataFrame():
+    df = pd.read_csv('../data/data_with_category.csv')
     type_counter = Counter(df['job_type_name'].tolist())
     category_counter = Counter(df['job_type_category_name'].tolist())
     top_10_types = {name for name, _ in type_counter.most_common(10)}
     top_5_categories = {name for name, _ in category_counter.most_common(5)}
-    pred_field_name = 'job_type_name'
     field_map = {
         'job_type_category_name': top_5_categories,
         'job_type_name': top_10_types
     }
-    if pred_field_name in field_map:
-        df = df[df[pred_field_name].map(lambda x: x in field_map[pred_field_name])]
+    if TRAIN_FIELD in field_map:
+        df = df[df[TRAIN_FIELD].map(lambda x: x in field_map[TRAIN_FIELD])]
+    
+    df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(str(row['description']) + row['title']), axis=1)
+    return df.sample(frac=1, random_state=RAND_SEED)
 
+# prepare data
+def get_X_y(df):
     tfIdfVectorizer = TfidfVectorizer(
         analyzer='word', 
         sublinear_tf=True,
@@ -49,7 +54,7 @@ def get_X_y(df):
     )
     tfIdf = tfIdfVectorizer.fit_transform(list(df['desc_tokenized']))
     X = tfIdf.toarray() # convert to dense array
-    job_types, y = np.unique(df[pred_field_name], return_inverse=True)
+    job_types, y = np.unique(df[TRAIN_FIELD], return_inverse=True)
     return X, y, job_types
 
 
