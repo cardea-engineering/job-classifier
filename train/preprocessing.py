@@ -74,7 +74,7 @@ def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts, job_types)
     report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=job_types, digits=3)
     print('prediction metrics without manual rules')
     print(report)
-    return model
+    return model, yhat
 
 def get_result(model, Xts, yts, job_types):
     yhat = model.predict(Xts)
