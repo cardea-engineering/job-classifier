@@ -23,8 +23,10 @@ import pickle
 RAND_SEED = 42
 TRAIN_FIELD = 'job_type_name'
 TRAIN_FRACTION = 0.67
+JOB_TYPES = None
 
 
+# prepare data
 def get_dataFrame():
     df = pd.read_csv('../data/data_with_category.csv')
     type_counter = Counter(df['job_type_name'].tolist())
@@ -41,7 +43,11 @@ def get_dataFrame():
     df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(str(row['description']) + row['title']), axis=1)
     return df.sample(frac=1, random_state=RAND_SEED)
 
-# prepare data
+
+def set_job_types(job_types):
+    global JOB_TYPES
+    JOB_TYPES = job_types
+
 def get_X_y(df):
     tfIdfVectorizer = TfidfVectorizer(
         analyzer='word', 
@@ -56,7 +62,9 @@ def get_X_y(df):
     tfIdf = tfIdfVectorizer.fit_transform(list(df['desc_tokenized']))
     X = tfIdf.toarray() # convert to dense array
     job_types, y = np.unique(df[TRAIN_FIELD], return_inverse=True)
-    return X, y, job_types
+    set_job_types(job_types)
+
+    return X, y
 
 
 def get_train_test(X, y, train_size = TRAIN_FRACTION):
@@ -66,26 +74,22 @@ def get_train_test(X, y, train_size = TRAIN_FRACTION):
     return Xtr, Xts, ytr, yts
 
 
-def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts, job_types):
+def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
     clf = GridSearchCV(clf, parameters)
     clf.fit(Xtr, ytr)
     model = clf.best_estimator_
     yhat = model.predict(Xts)
-    report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=job_types, digits=3)
-    print('prediction metrics without manual rules')
-    print(report)
+    print_report(yts, yhat)
     return model, yhat
 
-def get_result(model, Xts, yts, job_types):
-    yhat = model.predict(Xts)
-    report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=job_types, digits=3)
-    print('prediction metrics without manual rules')
+def print_report(yts, yhat):
+    report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=JOB_TYPES, digits=3)
     print(report)
 
 
-def get_metrics_with_rules(df, Xts, yts, yhat, job_types):
+def get_metrics_with_rules(df, Xts, yts, yhat):
     c = Counter()
-    job_type_2_class_id = {job_type: i for i, job_type in enumerate(job_types)}
+    job_type_2_class_id = {job_type: i for i, job_type in enumerate(JOB_TYPES)}
     n_train = int(len(df) * TRAIN_FRACTION)
 
     for i, v in enumerate(Xts):
@@ -95,6 +99,6 @@ def get_metrics_with_rules(df, Xts, yts, yhat, job_types):
             if yhat[i] != job_type_2_class_id[matched_type]:
                 c[matched_type] += 1
                 yhat[i] = job_type_2_class_id[matched_type]
-    report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=job_types, digits=3)
+    
     print('prediction metrics after applying manual rules')
-    print(report)
+    print_report(yts, yhat)
