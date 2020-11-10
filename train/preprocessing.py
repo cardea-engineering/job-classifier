@@ -19,6 +19,9 @@ from utils.match_rules import match_job_type_rules
 import pickle
 
 
+df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(str(row['description']) + row['title']), axis=1)
+df = df.sample(frac=1).reset_index(drop=True)
+
 # prepare data
 def get_X_y(df):
 
@@ -34,9 +37,6 @@ def get_X_y(df):
     if pred_field_name in field_map:
         df = df[df[pred_field_name].map(lambda x: x in field_map[pred_field_name])]
 
-    df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(str(row['description']) + row['title']), axis=1)
-    df = df.sample(frac=1).reset_index(drop=True)
-
     tfIdfVectorizer = TfidfVectorizer(
         analyzer='word', 
         sublinear_tf=True,
@@ -51,3 +51,28 @@ def get_X_y(df):
     X = tfIdf.toarray() # convert to dense array
     job_types, y = np.unique(df[pred_field_name], return_inverse=True)
     return X, y, job_types
+
+
+def get_train_test(X, y, train_size = 0.67):
+    n_samples = len(X)
+    n_train = int(n_samples * train_size)
+    Xtr, Xts = X[:n_train, :], X[n_train:, :]
+    ytr, yts = y[:n_train], y[n_train:]
+    return Xtr, Xts, ytr, yts
+
+
+def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts, job_types):
+    clf = GridSearchCV(clf, parameters)
+    clf.fit(Xtr, ytr)
+    model = clf.best_estimator_
+    yhat = model.predict(Xts)
+    report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=job_types, digits=3)
+    print('prediction metrics without manual rules')
+    print(report)
+    return model
+
+def get_result(model, Xts, yts, job_types):
+    yhat = model.predict(Xts)
+    report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=job_types, digits=3)
+    print('prediction metrics without manual rules')
+    print(report)
