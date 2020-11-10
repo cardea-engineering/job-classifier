@@ -16,7 +16,6 @@ Full-Stack Software Engineering:
 DevOps & Infrastructure:
   title:
     - devops
-    - platform
     - site reliability
     - infrastructure
 Product Manager:
@@ -31,6 +30,7 @@ Data Engineering:
 Business Intelligence & Data Analysis:
   title:
     - data analysis
+    - data analyst
     - business intelligence
 
 # Operations & General Business
