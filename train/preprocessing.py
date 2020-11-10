@@ -17,3 +17,6 @@ from utils.match_rules import match_job_type_rules
 
 # serialize models
 import pickle
+
+# import feature engineering functions from utilities
+from utils.utils import parse_raw_html
