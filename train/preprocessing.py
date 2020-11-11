@@ -83,7 +83,7 @@ def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
     return model, yhat
 
 def print_report(yts, yhat):
-    report = classification_report(yhat, yts, labels=[i for i in range(10)], target_names=JOB_TYPES, digits=3)
+    report = classification_report(yts, yhat, labels=[i for i in range(10)], target_names=JOB_TYPES, digits=3)
     print(report)
 
 
