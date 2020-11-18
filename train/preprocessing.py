@@ -39,8 +39,9 @@ def get_dataFrame():
     }
     if TRAIN_FIELD in field_map:
         df = df[df[TRAIN_FIELD].map(lambda x: x in field_map[TRAIN_FIELD])]
-    
-    df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(str(row['description']) + row['title']), axis=1)
+
+    df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(
+        str(row['description']) + row['title']), axis=1)
     return df.sample(frac=1, random_state=RAND_SEED)
 
 
@@ -48,26 +49,27 @@ def set_job_types(job_types):
     global JOB_TYPES
     JOB_TYPES = job_types
 
+
 def get_X_y(df):
     tfIdfVectorizer = TfidfVectorizer(
-        analyzer='word', 
+        analyzer='word',
         sublinear_tf=True,
         stop_words=STOP_WORDS,
         strip_accents='unicode',
         token_pattern=r'\w{2,}',
-        ngram_range=(1,1),
+        ngram_range=(1, 1),
         max_features=1000,
         use_idf=True
     )
     tfIdf = tfIdfVectorizer.fit_transform(list(df['desc_tokenized']))
-    X = tfIdf.toarray() # convert to dense array
+    X = tfIdf.toarray()  # convert to dense array
     job_types, y = np.unique(df[TRAIN_FIELD], return_inverse=True)
     set_job_types(job_types)
 
     return X, y
 
 
-def get_train_test(X, y, train_size = TRAIN_FRACTION):
+def get_train_test(X, y, train_size=TRAIN_FRACTION):
     n_train = int(len(X) * train_size)
     Xtr, Xts = X[:n_train, :], X[n_train:, :]
     ytr, yts = y[:n_train], y[n_train:]
@@ -82,8 +84,10 @@ def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
     print_report(yts, yhat)
     return model, yhat
 
+
 def print_report(yts, yhat):
-    report = classification_report(yts, yhat, labels=[i for i in range(10)], target_names=JOB_TYPES, digits=3)
+    report = classification_report(
+        yts, yhat, labels=[i for i in range(10)], target_names=JOB_TYPES, digits=3)
     print(report)
 
 
@@ -99,6 +103,6 @@ def get_metrics_with_rules(df, Xts, yts, yhat):
             if yhat[i] != job_type_2_class_id[matched_type]:
                 c[matched_type] += 1
                 yhat[i] = job_type_2_class_id[matched_type]
-    
+
     print('prediction metrics after applying manual rules')
     print_report(yts, yhat)
