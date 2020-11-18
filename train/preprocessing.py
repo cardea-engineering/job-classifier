@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
-from utils.utils import parse_raw_html
+from utils.utils import tokenize_raw_html
 from utils.utils import STOP_WORDS
 
 # model training and evaluation
@@ -40,7 +40,7 @@ def get_dataFrame():
     if TRAIN_FIELD in field_map:
         df = df[df[TRAIN_FIELD].map(lambda x: x in field_map[TRAIN_FIELD])]
 
-    df['desc_tokenized'] = df.apply(lambda row: parse_raw_html(
+    df['desc_tokenized'] = df.apply(lambda row: tokenize_raw_html(
         str(row['description']) + row['title']), axis=1)
     return df.sample(frac=1, random_state=RAND_SEED)
 
