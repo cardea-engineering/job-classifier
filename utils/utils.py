@@ -42,11 +42,14 @@ def tokenize_text(sentence):
     return " ".join([lemmatizer.lemmatize(word.lower(), pos='v') for word in token_words])
 
 
-def parse_raw_html(raw_html):
-    if isinstance(raw_html, str):
-        soup = BeautifulSoup(html.unescape(raw_html), features="html.parser")
-        return tokenize_text(unicodedata.normalize("NFKD", soup.get_text()))
-    return ""
+def get_text_from_html(raw_html):
+    soup = BeautifulSoup(html.unescape(raw_html), features="html.parser")
+    text = unicodedata.normalize("NFKD", soup.get_text())
+    return text.replace('\n', ' ').replace('\r', '')
+
+
+def tokenize_raw_html(raw_html):
+    return tokenize_text(get_text_from_html(raw_html))
 
 
 def wrap_result(names, probs):
@@ -70,7 +73,7 @@ def get_result_with_manual_rules(X, model, result_types, func_rule, job_title, j
 
 
 def predict(job_title, job_desc):
-    text_input = parse_raw_html(job_title + job_desc)
+    text_input = tokenize_raw_html(job_title + job_desc)
     X = tfidfVectorizer.transform(np.array([text_input])).toarray()
 
     # job type
