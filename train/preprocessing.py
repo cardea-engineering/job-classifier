@@ -3,8 +3,7 @@ import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 from collections import Counter
-from utils.utils import tokenize_raw_html
-from utils.utils import STOP_WORDS
+from utils.utils import *
 
 # model training and evaluation
 from sklearn.model_selection import train_test_split, KFold, cross_val_predict, GridSearchCV
