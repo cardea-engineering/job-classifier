@@ -2,3 +2,4 @@ __pycache__/
 test*
 .vscode/
 hidden/
+**/api_feed.txt
