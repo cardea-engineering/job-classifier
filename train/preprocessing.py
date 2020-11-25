@@ -6,7 +6,7 @@ from collections import Counter
 from utils.utils import *
 
 # model training and evaluation
-from sklearn.model_selection import train_test_split, KFold, cross_val_predict, GridSearchCV
+from sklearn.model_selection import train_test_split, KFold, cross_val_predict, GridSearchCV, RandomizedSearchCV
 from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.svm import LinearSVC, SVC
@@ -23,6 +23,7 @@ RAND_SEED = 42
 TRAIN_FIELD = 'job_type_name'
 TRAIN_FRACTION = 0.67
 JOB_TYPES = None
+N_RAND_SEARCH = 20
 
 
 # prepare data
@@ -76,7 +77,7 @@ def get_train_test(X, y, train_size=TRAIN_FRACTION):
 
 
 def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
-    clf = GridSearchCV(clf, parameters)
+    clf = RandomizedSearchCV(clf, parameters, n_iter=N_RAND_SEARCH, random_state=RAND_SEED)
     clf.fit(Xtr, ytr)
     model = clf.best_estimator_
     yhat = model.predict(Xts)
