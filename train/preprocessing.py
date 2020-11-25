@@ -80,10 +80,10 @@ def get_train_test(X, y, train_size=TRAIN_FRACTION):
 
 
 def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
-    clf = RandomizedSearchCV(
+    models = RandomizedSearchCV(
         clf, parameters, n_iter=N_RAND_SEARCH, random_state=RAND_SEED)
-    clf.fit(Xtr, ytr)
-    model = clf.best_estimator_
+    models.fit(Xtr, ytr)
+    model = models.best_estimator_
     yhat = model.predict(Xts)
     print_report(yts, yhat)
     return model, yhat
