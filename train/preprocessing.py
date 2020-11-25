@@ -27,8 +27,11 @@ N_RAND_SEARCH = 20
 
 
 # prepare data
-def get_dataFrame():
-    df = pd.read_csv('../data/data_with_category.csv')
+def get_dataFrame(file_name='data_with_category.csv', data_path='../data/'):
+    return pd.read_csv(data_path + file_name)
+
+
+def get_relevant_job_df(df):
     type_counter = Counter(df['job_type_name'].tolist())
     category_counter = Counter(df['job_type_category_name'].tolist())
     top_10_types = {name for name, _ in type_counter.most_common(10)}
@@ -77,7 +80,8 @@ def get_train_test(X, y, train_size=TRAIN_FRACTION):
 
 
 def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
-    clf = RandomizedSearchCV(clf, parameters, n_iter=N_RAND_SEARCH, random_state=RAND_SEED)
+    clf = RandomizedSearchCV(
+        clf, parameters, n_iter=N_RAND_SEARCH, random_state=RAND_SEED)
     clf.fit(Xtr, ytr)
     model = clf.best_estimator_
     yhat = model.predict(Xts)
@@ -85,9 +89,9 @@ def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
     return model, yhat
 
 
-def print_report(yts, yhat):
+def print_report(yts, yhat, target_names=JOB_TYPES, n_digits=3):
     report = classification_report(
-        yts, yhat, labels=[i for i in range(10)], target_names=JOB_TYPES, digits=3)
+        yts, yhat, labels=[i for i in range(10)], target_names=target_names, digits=n_digits)
     print(report)
 
 
