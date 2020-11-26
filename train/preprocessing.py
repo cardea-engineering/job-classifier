@@ -79,19 +79,19 @@ def get_train_test(X, y, train_size=TRAIN_FRACTION):
     return Xtr, Xts, ytr, yts
 
 
-def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts):
+def get_opt_model_by_grid_search(clf, parameters, Xtr, Xts, ytr, yts, **kwagrs):
     models = RandomizedSearchCV(
         clf, parameters, n_iter=N_RAND_SEARCH, random_state=RAND_SEED)
     models.fit(Xtr, ytr)
     model = models.best_estimator_
     yhat = model.predict(Xts)
-    print_report(yts, yhat)
+    print_report(yts, yhat, **kwagrs)
     return model, yhat
 
 
 def print_report(yts, yhat, target_names=JOB_TYPES, n_digits=3):
     report = classification_report(
-        yts, yhat, labels=[i for i in range(10)], target_names=target_names, digits=n_digits)
+        yts, yhat, labels=[i for i in range(len(target_names))], target_names=target_names, digits=n_digits)
     print(report)
 
 
