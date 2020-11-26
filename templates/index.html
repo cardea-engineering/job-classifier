@@ -50,7 +50,12 @@
             <button id="btnTest" class="btn">Test it</button>
 
             <div class='result' id='result'>
+                <p>Job Relevance</p>
+                <div id='jobRelevance'>
+
+                </div>
                 <p>Job Category</p>
+                
                 <div id='jobCategory'>
 
                 </div>
@@ -89,8 +94,8 @@
                 'desc': $('#desc').val()
             },
             success: (data) => {
-                const { job_category, job_experience, job_type } = data;
-
+                const { job_category, job_experience, job_type, job_relevance } = data;
+                showResult($('#jobRelevance'), job_relevance);
                 showResult($('#jobCategory'), job_category);
                 showResult($('#jobType'), job_type);
                 showResult($('#experienceLevel'), job_experience);

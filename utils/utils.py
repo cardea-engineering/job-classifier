@@ -16,10 +16,13 @@ def get_model(file_name):
 with open('static/stopwords.txt') as f:
     STOP_WORDS = [line.strip() for line in f.readlines()]
 
+job_relevance_model = get_model('job_relevance_model.pkl')
 job_category_model = get_model('job_type_category_name_model.pkl')
 job_type_model = get_model('job_type_name_model.pkl')
 job_exp_model = get_model('job_exp_name_model.pkl')
 tfidfVectorizer = get_model('tfIdfVectorizer.pkl')
+
+job_relevances = ['irrelevant', 'relevant']
 
 job_categories = ['Business Operations', 'Data & Analytics',
                   'Finance, Legal & Compliance', 'Product & Design',
@@ -88,8 +91,13 @@ def predict(job_title, job_desc):
     prob_category = job_category_model.predict_proba(X).flatten()
     result_category = wrap_result(job_categories, prob_category)
 
+    # job relevance
+    prob_relevance = job_relevance_model.predict_proba(X).flatten()
+    result_relevance = wrap_result(job_relevances, prob_relevance)
+
     return {
         'job_category': result_category,
         'job_type': result_type,
-        'job_experience': result_exp
+        'job_experience': result_exp,
+        'job_relevance': result_relevance
     }
