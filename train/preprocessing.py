@@ -64,12 +64,12 @@ def get_X_y(df):
         max_features=1000,
         use_idf=True
     )
-    tfIdf = tfIdfVectorizer.fit_transform(list(df['desc_tokenized']))
-    X = tfIdf.toarray()  # convert to dense array
+    tfIdf = tfIdfVectorizer.fit(list(df['desc_tokenized']))
+    X = tfIdf.transform(list(df['desc_tokenized'])).toarray()  # convert to dense array
     job_types, y = np.unique(df[TRAIN_FIELD], return_inverse=True)
     set_job_types(job_types)
 
-    return X, y
+    return X, y, tfIdf
 
 
 def get_train_test(X, y, train_size=TRAIN_FRACTION):
