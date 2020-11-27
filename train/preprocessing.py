@@ -31,21 +31,38 @@ def get_dataFrame(file_name='data_with_category.csv', data_path='../data/'):
     return pd.read_csv(data_path + file_name)
 
 
-def get_relevant_job_df(df):
-    type_counter = Counter(df['job_type_name'].tolist())
-    category_counter = Counter(df['job_type_category_name'].tolist())
-    top_10_types = {name for name, _ in type_counter.most_common(10)}
-    top_5_categories = {name for name, _ in category_counter.most_common(5)}
-    field_map = {
-        'job_type_category_name': top_5_categories,
-        'job_type_name': top_10_types
-    }
-    if TRAIN_FIELD in field_map:
-        df = df[df[TRAIN_FIELD].map(lambda x: x in field_map[TRAIN_FIELD])]
+# def get_relevant_job_df(df):
+#     type_counter = Counter(df['job_type_name'].tolist())
+#     category_counter = Counter(df['job_type_category_name'].tolist())
+#     top_10_types = {name for name, _ in type_counter.most_common(10)}
+#     top_5_categories = {name for name, _ in category_counter.most_common(5)}
+#     field_map = {
+#         'job_type_category_name': top_5_categories,
+#         'job_type_name': top_10_types
+#     }
+#     if TRAIN_FIELD in field_map:
+#         df = df[df[TRAIN_FIELD].map(lambda x: x in field_map[TRAIN_FIELD])]
 
+#     df['desc_tokenized'] = df.apply(lambda row: tokenize_raw_html(
+#         str(row['description']) + row['title']), axis=1)
+#     return df.sample(frac=1, random_state=RAND_SEED)
+
+def get_desc_token_added(df):
     df['desc_tokenized'] = df.apply(lambda row: tokenize_raw_html(
         str(row['description']) + row['title']), axis=1)
     return df.sample(frac=1, random_state=RAND_SEED)
+
+
+def get_top_frequent_types(df, n=10):
+    type_counter = Counter(df['job_type_name'].tolist())
+    top_types = {name for name, _ in type_counter.most_common(n)}
+    return df[df['job_type_name'].map(lambda x: x in top_types)]
+
+
+def get_top_frequent_categories(df, n=5):
+    category_counter = Counter(df['job_type_category_name'].tolist())
+    top_categories = {name for name, _ in category_counter.most_common(n)}
+    return df[df['job_type_name'].map(lambda x: x in top_categories)]
 
 
 def set_job_types(job_types):
@@ -65,7 +82,7 @@ def get_X_y(df):
         use_idf=True
     )
     tfIdf = tfIdfVectorizer.fit(list(df['desc_tokenized']))
-    X = tfIdf.transform(list(df['desc_tokenized'])).toarray()  # convert to dense array
+    X = tfIdf.transform(list(df['desc_tokenized'])).toarray()
     job_types, y = np.unique(df[TRAIN_FIELD], return_inverse=True)
     set_job_types(job_types)
 
