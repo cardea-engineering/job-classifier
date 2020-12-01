@@ -20,7 +20,12 @@ python setup.py
 ```shell
 python server.py
 ```
+Then, open `localhost:5000` for API test.
 
-In development mode, we can sent POST request to the API `localhost:5000/predict` by setting two fields: job title `title` and job description `desc`.
-![](static/API_demo.jpg)
-The screenshot is made by Postman as an example.
+## directories
+`manual_rules`: the configuration files for manually added matching rules
+`models`: serialized trained models for predictions
+`static`: static resources
+`templates`: front-end templates (used for API test etc.)
+`train`: used for training models in Google Colab
+`utils`: utility functions used for predictions and model training
