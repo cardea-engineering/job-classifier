@@ -1,0 +1,22 @@
+
+version: 2.1
+jobs:
+  run_tests:
+    docker:
+      - image: circleci/python:3.8.5
+    steps:
+      - checkout
+      - run:
+          name: Install Python dependencies
+          command: |
+            python3 -m venv venv
+            . venv/bin/activate
+            pip install -r requirements.txt
+      - run:
+          name: Run Setup script
+          command: |
+            python3 setup.py
+workflows:
+  build_test:
+    jobs:
+      - run_tests
